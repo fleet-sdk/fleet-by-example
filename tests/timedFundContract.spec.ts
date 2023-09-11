@@ -123,7 +123,3 @@ describe("Timed fund contract", () => {
     });
   });
 });
-
-it("test", () => {
-  const add = ErgoAddress.fromErgoTree("deadbeef");
-});
