@@ -9,6 +9,8 @@ import {
   ErgoAddress
 } from "@fleet-sdk/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import fs from "fs";
+import path from "path";
 
 describe("Timed fund contract", () => {
   // set up the mock chain
@@ -20,7 +22,8 @@ describe("Timed fund contract", () => {
   const bob = mockChain.newParty("Bob");
 
   // compile the contract script
-  const ergoTree = compile("(alicePK && HEIGHT > deadline) || (bobPK && HEIGHT <= deadline)", {
+  const contractScript = fs.readFileSync(path.join(__dirname, "timedFundContract.es"), "utf-8");
+  const ergoTree = compile(contractScript, {
     map: {
       alicePK: SSigmaProp(SGroupElement(alice.key.publicKey)),
       bobPK: SSigmaProp(SGroupElement(bob.key.publicKey)),

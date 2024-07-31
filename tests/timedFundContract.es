@@ -1,0 +1,1 @@
+(alicePK && HEIGHT > deadline) || (bobPK && HEIGHT <= deadline)
