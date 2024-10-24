@@ -5,8 +5,7 @@ import {
   SSigmaProp,
   SGroupElement,
   TransactionBuilder,
-  OutputBuilder,
-  ErgoAddress
+  OutputBuilder
 } from "@fleet-sdk/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
