@@ -22,7 +22,7 @@ function hexToBytes(hexString: string): Uint8Array {
 }
 
 const SELF_REPLICATING_TOKEN_SALE_SCRIPT = `{
-  val saleCycleValid = if (OUTPUTS.size >= 1) {
+  val saleCycleValid = if (SELF.tokens.size >= 1 && OUTPUTS.size >= 1) {
     val selfTokenId = SELF.tokens(0)._1
     val selfTokenAmount = SELF.tokens(0)._2
 
@@ -233,5 +233,27 @@ describe("Self-replicating token sale contract", () => {
     expect(mockChain.execute(transaction, { signers: [seller] })).to.be.true;
     expect(saleContract.balance).to.be.deep.equal({ nanoergs: 0n, tokens: [] });
     expect(seller.balance.tokens).to.be.deep.equal([{ tokenId: SALE_TOKEN_ID, amount: 100n }]);
+  });
+
+  it("Should allow seller to sweep a tokenless ERG box without failing", () => {
+    saleContract.addBalance({ nanoergs: 5_000_000n, tokens: [] });
+
+    const attackerSweep = new TransactionBuilder(mockChain.height)
+      .from(saleContract.utxos)
+      .to(new OutputBuilder(3_900_000n, attacker.address))
+      .payMinFee()
+      .build();
+
+    expect(mockChain.execute(attackerSweep, { signers: [attacker], throw: false })).to.be.false;
+
+    const sellerRecovery = new TransactionBuilder(mockChain.height)
+      .from(saleContract.utxos)
+      .to(new OutputBuilder(3_900_000n, seller.address))
+      .payMinFee()
+      .build();
+
+    expect(mockChain.execute(sellerRecovery, { signers: [seller] })).to.be.true;
+    expect(saleContract.balance).to.be.deep.equal({ nanoergs: 0n, tokens: [] });
+    expect(seller.balance).to.be.deep.equal({ nanoergs: 3_900_000n, tokens: [] });
   });
 });
